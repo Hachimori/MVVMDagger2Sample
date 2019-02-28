@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">MVVMDagger2Sample</string>
+
+    <!-- Input form -->
+    <string name="input_form_github_name">Input GitHub Account Name</string>
+    <string name="input_form_get_user_info">Get user info</string>
+    <string name="input_form_get_repository">Get repository</string>
+    <string name="input_form_user_info">User: %1$s\nCompany: %2$s\nEmail: %3$s\nBio: %4$s\nCreated at: %5$s\nUpdated at: %6$s\n</string> 
+    
+</resources>
