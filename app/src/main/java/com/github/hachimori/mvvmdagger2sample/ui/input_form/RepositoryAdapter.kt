@@ -1,9 +1,9 @@
 package com.github.hachimori.mvvmdagger2sample.ui.input_form
 
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import com.github.hachimori.mvvmdagger2sample.R
 import com.github.hachimori.mvvmdagger2sample.model.Repos
 import kotlinx.android.synthetic.main.item_repository.view.*

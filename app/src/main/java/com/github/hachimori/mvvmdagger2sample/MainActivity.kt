@@ -1,7 +1,7 @@
 package com.github.hachimori.mvvmdagger2sample
 
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.github.hachimori.mvvmdagger2sample.ui.input_form.InputFormFragment
 
 class MainActivity : AppCompatActivity() {
