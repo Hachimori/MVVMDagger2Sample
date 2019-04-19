@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/inputFormFragment">
+
+    <fragment
+        android:id="@+id/inputFormFragment"
+        android:name="com.github.hachimori.mvvmdagger2sample.ui.input_form.InputFormFragment"
+        android:label="InputFormFragment"
+        tools:layout="@layout/fragment_input_form" >
+        <action
+            android:id="@+id/action_inputFormFragment_to_repositoryDetailFragment"
+            app:destination="@id/repositoryDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/repositoryDetailFragment"
+        android:name="com.github.hachimori.mvvmdagger2sample.ui.repository_detail.RepositoryDetailFragment"
+        android:label="RepositoryDetailFragment" 
+        tools:layout="@layout/fragment_repository_detail">
+        <argument
+            android:name="repos"
+            app:argType="com.github.hachimori.mvvmdagger2sample.model.Repos" />
+        <argument
+            android:name="user"
+            app:argType="string" />
+    </fragment>
+</navigation>

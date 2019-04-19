@@ -1,5 +1,8 @@
 package com.github.hachimori.mvvmdagger2sample.model
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
 /**
  * Model class for storing data retrieved from GitHub API.
  *
@@ -26,13 +29,14 @@ data class User(
  * GitHub repository information
  *   - https://developer.github.com/v3/repos/#list-user-repositories
  */
+@Parcelize
 data class Repos(
     val id: String,
     val name: String,
     val full_name: String,
     val url: String,
     val description: String
-)
+): Parcelable
 
 
 /**
@@ -42,7 +46,7 @@ data class Repos(
 data class Commits(
     val url: String,
     val sha: String,
-    private val commit: Commit
+    val commit: Commit
 )
 
 
