@@ -18,13 +18,10 @@
     <fragment
         android:id="@+id/repositoryDetailFragment"
         android:name="com.github.hachimori.mvvmdagger2sample.ui.repository_detail.RepositoryDetailFragment"
-        android:label="RepositoryDetailFragment" 
+        android:label="RepositoryDetailFragment"
         tools:layout="@layout/fragment_repository_detail">
         <argument
             android:name="repos"
             app:argType="com.github.hachimori.mvvmdagger2sample.model.Repos" />
-        <argument
-            android:name="user"
-            app:argType="string" />
     </fragment>
 </navigation>
