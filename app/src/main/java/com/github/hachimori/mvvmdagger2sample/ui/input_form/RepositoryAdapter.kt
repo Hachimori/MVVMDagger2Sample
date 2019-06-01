@@ -9,7 +9,7 @@ import com.github.hachimori.mvvmdagger2sample.model.Repos
 import kotlinx.android.synthetic.main.item_repository.view.*
 
 class RepositoryAdapter(private val viewModel: InputFormViewModel, private val reposList: List<Repos>) : RecyclerView.Adapter<RepositoryViewHolder>() {
-    
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RepositoryViewHolder {
         val inflater: LayoutInflater = LayoutInflater.from(parent.context)
         val view: View = inflater.inflate(R.layout.item_repository, parent, false)

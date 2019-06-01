@@ -2,27 +2,40 @@ package com.github.hachimori.mvvmdagger2sample.ui.input_form
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import com.github.hachimori.mvvmdagger2sample.model.Repos
 import com.github.hachimori.mvvmdagger2sample.model.User
-import com.github.hachimori.mvvmdagger2sample.network.GitHubService
+import com.github.hachimori.mvvmdagger2sample.repository.GitHubRepository
+import com.github.hachimori.mvvmdagger2sample.util.AbsentLiveData
+import com.github.hachimori.mvvmdagger2sample.util.Resource
 import com.github.hachimori.mvvmdagger2sample.util.SingleLiveEvent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
 
-class InputFormViewModel : ViewModel() {
+class InputFormViewModel constructor(val repository: GitHubRepository): ViewModel() {
+    val reposList: MutableList<Repos> = mutableListOf()
 
-    var reposList: MutableList<Repos> = mutableListOf()
+    private val _userUserName: MutableLiveData<String> = MutableLiveData()
+    val userUserName: LiveData<String> = _userUserName
+    val user: LiveData<Resource<User>> = Transformations.switchMap(userUserName) { userName ->
+        if (userName == null) {
+            AbsentLiveData.create()
+        } else {
+            repository.getUser(userName)
+        }
+    }
 
-    private val job = Job()
-    private val uiScope = CoroutineScope(Dispatchers.Main + job)
+    private val _reposUserName: MutableLiveData<String> = MutableLiveData()
+    val reposUserName: LiveData<String> = _reposUserName
+    val repos: LiveData<Resource<List<Repos>>>  = Transformations.switchMap(reposUserName) { userName ->
+        if (userName == null) {
+            AbsentLiveData.create()
+        } else {
+            repository.listRepos(userName)
+        }
+    }
+
 
     private val onClickRepositoryItemObservable: SingleLiveEvent<Repos> = SingleLiveEvent()
-    private val userObservable: MutableLiveData<User> = MutableLiveData()
-    private val userReposListObservable: MutableLiveData<List<Repos>> = MutableLiveData()
-
 
     fun getOnClickRepositoryItemObservable(): LiveData<Repos> = onClickRepositoryItemObservable
 
@@ -30,26 +43,11 @@ class InputFormViewModel : ViewModel() {
         onClickRepositoryItemObservable.value = repos
     }
 
-    fun getUserObservable(): LiveData<User> = userObservable
-
-    fun getUser(userName: String) {
-        uiScope.launch {
-            val user = GitHubService.getService().getUser(userName).await()
-            userObservable.value = user
-        }
+    fun getUser(name: String) {
+        _userUserName.value = name
     }
-
-    fun getUserReposListObservable(): LiveData<List<Repos>> = userReposListObservable
 
     fun getUserReposList(user: String) {
-        uiScope.launch {
-            val reposList = GitHubService.getService().listRepos(user).await()
-            userReposListObservable.value = reposList
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        job.cancel()
+        _reposUserName.value = user
     }
 }
