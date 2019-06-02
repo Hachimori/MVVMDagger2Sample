@@ -1,6 +1,8 @@
 package com.github.hachimori.mvvmdagger2sample.ui.repository_detail
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,9 +12,18 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
+import com.github.hachimori.mvvmdagger2sample.AppExecutors
 import com.github.hachimori.mvvmdagger2sample.R
-import com.github.hachimori.mvvmdagger2sample.model.Commits
+import com.github.hachimori.mvvmdagger2sample.db.GitHubDb
+import com.github.hachimori.mvvmdagger2sample.network.GitHubService
+import com.github.hachimori.mvvmdagger2sample.repository.GitHubRepository
+import com.github.hachimori.mvvmdagger2sample.util.Status
+import com.github.hachimori.mvvmdagger2sample.viewmodelfactory.RepositoryDetailViewModelFactory
 import kotlinx.android.synthetic.main.fragment_repository_detail.*
+import timber.log.Timber
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 
 class RepositoryDetailFragment : Fragment() {
 
@@ -30,12 +41,44 @@ class RepositoryDetailFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewModel = ViewModelProviders.of(this).get(RepositoryDetailViewModel::class.java)
 
-        viewModel.getListCommitObservable().observe(viewLifecycleOwner, Observer<List<Commits>> { commitsList ->
-            repository_detail_commit_list.layoutManager = LinearLayoutManager(context)
-            repository_detail_commit_list.adapter = CommitAdapter(commitsList)
-            repository_detail_commit_list.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
+        val factory = RepositoryDetailViewModelFactory(GitHubRepository(
+            AppExecutors(
+                Executors.newSingleThreadExecutor(),
+                Executors.newFixedThreadPool(3),
+                object: Executor {
+                    private val mainThreadHandler = Handler(Looper.getMainLooper())
+                    override fun execute(command: Runnable) {
+                        mainThreadHandler.post(command)
+                    }
+                }
+            ),
+            Room
+                .databaseBuilder(context!!, GitHubDb::class.java, "github.db")
+                .fallbackToDestructiveMigration()
+                .build().gitHubDao(),
+            GitHubService.getService()
+        ))
+
+        viewModel = ViewModelProviders.of(activity!!, factory).get(RepositoryDetailViewModel::class.java)
+
+        repository_detail_commit_list.layoutManager = LinearLayoutManager(context)
+        repository_detail_commit_list.adapter = CommitAdapter(viewModel.commitsList)
+        repository_detail_commit_list.addItemDecoration(DividerItemDecoration(activity, LinearLayout.VERTICAL))
+
+        viewModel.listCommit.observe(viewLifecycleOwner, Observer { resource ->
+            when (resource.status) {
+                Status.SUCCESS -> {
+                    val commitsList = resource.data ?: listOf()
+
+                    viewModel.commitsList.clear()
+                    viewModel.commitsList.addAll(commitsList)
+
+                    (repository_detail_commit_list.adapter as CommitAdapter).notifyDataSetChanged()
+                }
+                Status.ERROR -> Timber.d(resource.message)
+                Status.LOADING -> Timber.i("Loading")
+            }
         })
 
         arguments?.let {

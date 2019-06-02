@@ -11,7 +11,7 @@ import com.github.hachimori.mvvmdagger2sample.util.AbsentLiveData
 import com.github.hachimori.mvvmdagger2sample.util.Resource
 import com.github.hachimori.mvvmdagger2sample.util.SingleLiveEvent
 
-class InputFormViewModel constructor(val repository: GitHubRepository): ViewModel() {
+class InputFormViewModel constructor(private val repository: GitHubRepository): ViewModel() {
     val reposList: MutableList<Repos> = mutableListOf()
 
     private val _userUserName: MutableLiveData<String> = MutableLiveData()

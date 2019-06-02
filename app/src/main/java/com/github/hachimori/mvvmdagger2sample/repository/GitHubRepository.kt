@@ -1,6 +1,7 @@
 package com.github.hachimori.mvvmdagger2sample.repository
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.github.hachimori.mvvmdagger2sample.AppExecutors
 import com.github.hachimori.mvvmdagger2sample.db.GitHubDao
 import com.github.hachimori.mvvmdagger2sample.model.Commits
@@ -43,7 +44,6 @@ class GitHubRepository(
             }
 
             override fun shouldFetch(data: List<Repos>?): Boolean {
-
                 return data == null || data.isEmpty() || repoListRateLimit.shouldFetch(arrayOf("Repos", user).joinToString(separator = "#"))
             }
 
@@ -53,17 +53,17 @@ class GitHubRepository(
         }.asLiveData()
     }
 
-    fun listCommit(owner: String, repos: String): LiveData<Resource<CommitsEntity>> {
-        return object : NetworkBoundResource<CommitsEntity, List<Commits>>(appExecutors) {
+    fun listCommit(owner: String, repos: String): LiveData<Resource<List<Commits>>> {
+        return object : NetworkBoundResource<List<Commits>, List<Commits>>(appExecutors) {
             override fun saveCallResult(item: List<Commits>) {
                 dao.insertCommits(CommitsEntity(owner, repos, item))
             }
 
-            override fun shouldFetch(data: CommitsEntity?): Boolean {
-                return data == null || data.commits.isEmpty() || repoListRateLimit.shouldFetch(arrayOf("Commits", owner, repos).joinToString(separator = "#"))
+            override fun shouldFetch(data: List<Commits>?): Boolean {
+                return data == null || data.isEmpty() || repoListRateLimit.shouldFetch(arrayOf("Commits", owner, repos).joinToString(separator = "#"))
             }
 
-            override fun loadFromDb() = dao.loadCommits(owner, repos)
+            override fun loadFromDb() = Transformations.map(dao.loadCommits(owner, repos)) { commits -> commits?.commits ?: listOf() }
 
             override fun createCall() = service.listCommit(owner, repos)
         }.asLiveData()
