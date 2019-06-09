@@ -59,8 +59,6 @@ data class Repos(
 }
 
 
-
-
 /**
  * GitHub commit information
  *   - https://developer.github.com/v3/repos/commits/#list-commits-on-a-repository
